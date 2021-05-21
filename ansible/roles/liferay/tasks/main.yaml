@@ -1,0 +1,59 @@
+---
+- name: Install OpenJDK
+  ansible.builtin.yum:
+    name: java-1.8.0-openjdk-devel
+    state: present
+
+- name: Download tar.gz liferay+wildfly-bundle
+  ansible.builtin.command:
+    argv: 
+      - curl
+      - "{{ bundle_uri }}"
+      - -L
+      - -o
+      - /opt/liferay_portal
+
+
+- name: Create liferay home directory
+  ansible.builtin.file:
+    path: "{{ liferay_home_dir }}"
+    state: directory
+    mode: '0700'
+  become: True
+
+- name: Extract liferay+wildfly bundle archive into liferay home dir
+  ansible.builtin.unarchive:
+    src: /opt/liferay_portal
+    dest: "{{ liferay_home_dir }}"
+    remote_src: yes
+    extra_opts: [--strip-components=1]
+
+- name: Download appropteate postgres.jar version
+  ansible.builtin.command:
+    argv:
+      - curl
+      - "{{ postgresql_jar_uri }}"
+      - -o 
+      - "{{liferay_home_dir}}/wildfly-11.0.0/modules/com/liferay/portal/main/postgresql.jar"
+
+
+- name: Add liferay portal config
+  ansible.builtin.template:
+    src: liferay.cfg.j2
+    dest: "{{liferay_home_dir}}/portal-setup-wizard.properties"
+    mode: 0600
+
+
+- name: Create wildfly service dscription file for systemd
+  ansible.builtin.template:
+    src: wildfly.service.j2
+    dest: /etc/systemd/system/wildfly.service
+    mode: 0744
+  become: True
+
+- name: Enable and start systemd service
+  ansible.builtin.systemd:
+    name: wildfly
+    state: started
+    daemon_reload: True
+    enabled: True

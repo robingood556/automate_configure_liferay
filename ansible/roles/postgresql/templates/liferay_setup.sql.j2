@@ -1,0 +1,4 @@
+CREATE USER {{ liferay.db.user }};
+ALTER USER {{ liferay.db.user }} WITH PASSWORD '{{liferay.db.password}}';
+CREATE DATABASE {{ liferay.db.name }};
+GRANT ALL PRIVILEGES ON DATABASE {{ liferay.db.name }} TO {{ liferay.db.user }};

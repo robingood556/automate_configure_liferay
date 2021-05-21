@@ -1,0 +1,11 @@
+---
+- name: Install TomcatXJenkins and setup Jenkins and run postgresqlXliferayXwildfly deploy pipeline
+  hosts: jenkins
+  gather_facts: true
+
+  roles:
+    - name: install_jenkins
+      become: True
+    - name: jenkins_setup
+      become: True
+

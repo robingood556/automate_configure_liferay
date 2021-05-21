@@ -1,0 +1,13 @@
+admin.email.from.address={{ liferay_admin.email }}
+admin.email.from.name={{ liferay_admin.name }} {{ liferay_admin.surname }}
+company.default.locale={{ liferay.locale }}
+company.default.time.zone={{ liferay.timezone }}
+company.default.web.id={{ liferay.email_domain }}
+default.admin.email.address.prefix={{ liferay.admin_email_prefix }}
+jdbc.default.driverClassName=org.postgresql.Driver
+jdbc.default.password={{ liferay.db.password }}
+jdbc.default.url=jdbc:postgresql://{{ hostvars.postgres.ansible_ssh_host }}:5432/{{ liferay.db.name }}
+jdbc.default.username={{ liferay.db.user }}
+liferay.home={{ liferay_home_dir }}
+setup.wizard.add.sample.data=on
+setup.wizard.enabled=false

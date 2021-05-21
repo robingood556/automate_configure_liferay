@@ -1,0 +1,65 @@
+---
+- name: Pending Jenkins boot
+  ansible.builtin.uri:
+    url: "{{ jenkins_url }}"
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 120
+  delay: 5
+    
+- name: Download jenkins-cli.jar
+  ansible.builtin.get_url:
+    url: "{{ jenkins_cli_url }}"
+    dest: "{{ jenkins_cli_folder }}"
+    
+- name: Modify config.xml
+  ansible.builtin.lineinfile:
+    path: "{{ jenkins_home_directory }}/config.xml"
+    regexp: '^<useSecurity>'
+    line: '<useSecurity>false'
+    insertbefore: '^</useSecurity>'
+    
+- name: restart tomcat
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: tomcat
+    state: restarted
+    enabled: true
+    
+- name: Pending Jenkins boot
+  ansible.builtin.uri:
+    url: "{{ jenkins_url }}"
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 120
+  delay: 5
+
+- name: Install Jenkins plugins
+  ansible.builtin.command: >
+    java -jar {{ jenkins_cli_folder }}/jenkins-cli.jar -auth admin:{{ jenkins_admin_password }} -s {{ jenkins_url }} install-plugin {{ item }}
+    creates={{ jenkins_home_directory }}/plugins/{{ item }}.jpi
+  with_items: "{{ jenkins_plugins }}"
+
+- name: Generate JCaaS yaml config
+  ansible.builtin.template:
+    src: jenkins.yaml.j2
+    dest: "{{ jenkins_home_directory }}/jenkins.yaml"
+    mode: 600
+
+- name: restart tomcat
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: tomcat
+    state: restarted
+    enabled: true
+
+- name: Pending Jenkins boot
+  ansible.builtin.uri:
+    url: "{{ jenkins_url }}"
+    status_code: 403
+  register: result
+  until: result.status == 403
+  retries: 120
+  delay: 5

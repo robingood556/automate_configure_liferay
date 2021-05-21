@@ -1,0 +1,9 @@
+---
+postgresql:
+  server_rpm: postgresql13-server.x86_64
+  setup_exc_path: /usr/pgsql-13/bin/postgresql-13-setup
+  pg_hba_path: /var/lib/pgsql/13/data/pg_hba.conf
+  service_name: postgresql-13
+  postgres_config_path: /var/lib/pgsql/13/data/postgresql.conf
+
+  

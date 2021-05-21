@@ -1,0 +1,53 @@
+---
+- name: Add postgresql repo 
+  ansible.builtin.yum:
+    name: >
+      https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+    state: present
+
+- name: Install postgresql server
+  ansible.builtin.yum:
+    name: "{{ postgresql.server_rpm }}"
+    state: present
+
+
+- name: Init database
+  ansible.builtin.command: 
+    argv: 
+      - "{{ postgresql.setup_exc_path }}"
+      - initdb
+  ignore_errors: True
+
+- name: Configure postgresql for listen all address
+  ansible.builtin.lineinfile:
+    dest: "{{ postgresql.postgres_config_path }}"
+    line: listen_addresses = '0.0.0.0' 
+
+- name: Configure postgresql for remote accsess
+  ansible.builtin.lineinfile:
+    dest: "{{ postgresql.pg_hba_path }}"
+    line: >
+      host {{ liferay.db.name }} {{ liferay.db.user }}
+      {{ hostvars.liferay.ansible_ssh_host }}/32 md5
+
+- name: Enable and start systemd service
+  ansible.builtin.systemd:
+    name: "{{ postgresql.service_name }}"
+    state: started
+    enabled: True
+
+- name: Generate sql file
+  ansible.builtin.template:
+    src: liferay_setup.sql.j2
+    dest: /tmp/liferay_setup.sql
+    mode: 0600
+    owner: postgres
+
+- name: Create psql role and grant privilages
+  ansible.builtin.command: psql -f /tmp/liferay_setup.sql
+  become_user: postgres
+  become: yes
+
+- name: Delete sql file 
+  ansible.builtin.command: rm /tmp/liferay_setup.sql
+  become: yes

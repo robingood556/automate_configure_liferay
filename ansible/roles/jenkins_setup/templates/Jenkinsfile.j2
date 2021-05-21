@@ -1,0 +1,20 @@
+pipeline{
+  agent any
+    stages{
+      stage('Prepare node'){
+        steps{
+          sh '''
+          yum install git -y
+          yum install python3 -y
+          pip3 install --upgrade pip
+          pip3 install ansible==2.10.7
+            '''
+        }
+      }
+      stage('Run ansible playbook'){
+        steps{
+          ansiblePlaybook credentialsId: '{{ rsa_id }}', vaultCredentialsId: '{{ vault_id }}', disableHostKeyChecking: true, forks: 1, inventory: 'ansible/Jenkins_inventory.ini', playbook: 'ansible/jenkins_playbook.yaml', extras: '-e @ansible/setup_vars.yaml'
+        }
+      }
+    }
+}

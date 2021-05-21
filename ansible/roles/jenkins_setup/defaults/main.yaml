@@ -1,0 +1,14 @@
+jenkins_cli_url: http://localhost:8080/jenkins/jnlpJars/jenkins-cli.jar
+jenkins_url: http://localhost:8080/jenkins
+jenkins_cli_folder: /opt
+jenkins_home_directory: "{{ ansible_env.HOME }}/.jenkins"
+jenkins_plugins:
+  - ansible
+  - git
+  - job-dsl
+  - configuration-as-code
+  - workflow-aggregator
+dsl_job_name: demo_dsl
+pipeline_job_name: demo_pipeline
+rsa_id: terra_RSA
+vault_id: vault_crypt

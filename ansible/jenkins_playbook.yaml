@@ -1,0 +1,11 @@
+---
+- hosts: postgres
+  roles:
+    - name: postgresql
+      become: True
+
+- hosts: liferay
+  roles:
+    - name: liferay
+      become: True
+

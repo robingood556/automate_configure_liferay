@@ -1,0 +1,37 @@
+---
+- name: Install Java
+  ansible.builtin.yum:
+    name: java-1.8.0-openjdk
+       
+- name: Create tomcat directory
+  ansible.builtin.file:
+    path: "{{ dest_folder }}"
+    state: directory
+    mode: 0755  
+  become: true
+      
+- name: Download and Extract tomcat archive
+  ansible.builtin.unarchive:
+    src: "{{ tomcat_archive_url }}"
+    dest: "{{ dest_folder }}"
+    remote_src: yes
+    extra_opts: [--strip-components=1]
+
+- name: Move tomcat.service
+  ansible.builtin.template:
+    src: tomcat.service.j2
+    dest: "{{ dest_tomcat_service }}/tomcat.service"
+    mode: 0744
+  become: true
+
+- name: Download Jenkins
+  ansible.builtin.get_url:
+    url: "{{ jenkins_war_url }}"
+    dest: "{{ jenkins_folder }}"
+
+- name: Start tomcat
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: tomcat
+    state: started
+    enabled: true

@@ -1,0 +1,6 @@
+wildfly_port: 8080
+
+postgresql_jar_uri: https://jdbc.postgresql.org/download/postgresql-42.2.19.jar
+bundle_uri: https://github.com/liferay/liferay-portal/releases/download/7.1.3-ga4/liferay-ce-portal-wildfly-7.1.3-ga4-20190508171117552.tar.gz
+liferay_home_dir: /opt/liferay-portal/
+
